@@ -1,6 +1,6 @@
 # go-qris-dinamis
 
-CLI Go untuk mengubah QRIS statis menjadi dinamis. Suntik nominal transaksi, opsional service fee tetap, lalu recompute CRC16-CCITT. Zero external dependency.
+CLI Go untuk mengubah QRIS statis menjadi dinamis. Suntik nominal transaksi, opsional service fee tetap, lalu recompute CRC16-CCITT. Satu dependensi eksternal: `github.com/skip2/go-qrcode` untuk render QR PNG.
 
 Diadaptasi dari [verssache/qris-dinamis](https://github.com/verssache/qris-dinamis) (TypeScript).
 
@@ -56,8 +56,8 @@ qris -i "..." -a 50000 --qr qr.png
 ### Exit codes
 
 - `0` — sukses.
-- `1` — error dari library `qris` (CRC mismatch, format invalid, QRIS sudah dinamis).
-- `2` — usage error (flag salah, multiple sources, no input, amount/fee invalid, file tidak terbaca).
+- `1` — error dari library `qris` (CRC mismatch, format invalid, QRIS sudah dinamis, atau gagal render QR).
+- `2` — usage error (flag salah, multiple sources, no input, amount/fee invalid, file tidak terbaca, atau gagal tulis file QR PNG).
 
 ## Library usage
 
