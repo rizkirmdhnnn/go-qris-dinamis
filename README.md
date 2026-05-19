@@ -35,6 +35,9 @@ qris -i "..." -a 50000 --fee=1000
 
 # Pipe hasil ke file
 qris -f in.txt -a 50000 > out.txt
+
+# Sekaligus tulis gambar QR code ke PNG
+qris -i "..." -a 50000 --qr qr.png
 ```
 
 ### Flags
@@ -46,6 +49,7 @@ qris -f in.txt -a 50000 > out.txt
 | (stdin) | — | salah satu dari 3 | — | Pipe QRIS via stdin |
 | `-a`, `--amount` | int | ✅ | — | Nominal transaksi (rupiah, > 0, ≤ 13 digit) |
 | `--fee` | int | tidak | `0` | Fee tetap (rupiah, ≥ 0, ≤ 13 digit) |
+| `--qr` | string | tidak | — | Path file PNG; jika di-set, tulis QR code dari QRIS dinamis ke path tsb |
 | `-h`, `--help` | — | — | — | Tampilkan usage |
 | `-v`, `--version` | — | — | — | Tampilkan versi |
 
@@ -63,7 +67,9 @@ import "github.com/rizkirmdhnnn/go-qris-dinamis/qris"
 out, err := qris.Convert(input, qris.Options{Amount: 50000, Fee: 1000})
 ```
 
-Fungsi publik: `Parse`, `Validate`, `Convert`, `CRC16`. Sentinel errors: `ErrInvalidFormat`, `ErrCRCMismatch`, `ErrAlreadyDynamic`, `ErrInvalidAmount`, `ErrInvalidFee`.
+Fungsi publik: `Parse`, `Validate`, `Convert`, `CRC16`, `RenderPNG`. Sentinel errors: `ErrInvalidFormat`, `ErrCRCMismatch`, `ErrAlreadyDynamic`, `ErrInvalidAmount`, `ErrInvalidFee`.
+
+Untuk merender QRIS jadi gambar QR code PNG (mis. setelah `Convert`), pakai `qris.RenderPNG(qrisString, size)` — mengembalikan byte PNG siap ditulis ke file atau `io.Writer`. Error-correction level dipatok ke Medium.
 
 ## Development
 
