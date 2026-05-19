@@ -1,0 +1,14 @@
+# Binaries
+/qris
+/cmd/qris/qris
+
+# Test artifacts
+*.test
+*.out
+
+# OS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
