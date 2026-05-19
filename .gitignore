@@ -15,4 +15,5 @@
 .vscode/
 
 # Docs
-/docs/
+/docs/*
+!/docs/superpowers/
