@@ -13,3 +13,6 @@
 # Editors
 .idea/
 .vscode/
+
+# Docs
+/docs/
