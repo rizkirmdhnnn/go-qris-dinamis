@@ -30,6 +30,17 @@ func TestRun_HelpExitsZero(t *testing.T) {
 	}
 }
 
+func TestRun_NoArgsShowsHelp(t *testing.T) {
+	var out, errBuf bytes.Buffer
+	code := run(nil, strings.NewReader(""), &out, &errBuf)
+	if code != 0 {
+		t.Fatalf("exit=%d, want 0; stderr=%s", code, errBuf.String())
+	}
+	if !strings.Contains(out.String(), "Usage:") {
+		t.Errorf("no-args output missing 'Usage:': %s", out.String())
+	}
+}
+
 func TestRun_NoInputExitsTwo(t *testing.T) {
 	var out, errBuf bytes.Buffer
 	code := run([]string{"-a", "50000"}, strings.NewReader(""), &out, &errBuf)
