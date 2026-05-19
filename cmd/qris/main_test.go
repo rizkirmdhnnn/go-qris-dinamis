@@ -140,3 +140,27 @@ func TestRun_WithQRFlag(t *testing.T) {
 		t.Errorf("QR file does not start with PNG signature; first bytes = % x", data[:8])
 	}
 }
+
+func TestRun_QRFlag_BadPath(t *testing.T) {
+	// Path under a non-existent directory inside the temp dir — os.WriteFile
+	// will fail with "no such file or directory".
+	dir := t.TempDir()
+	qrPath := dir + "/does-not-exist/q.png"
+
+	var out, errBuf bytes.Buffer
+	code := run(
+		[]string{"-i", validStatic(), "-a", "50000", "--qr", qrPath},
+		strings.NewReader(""),
+		&out, &errBuf,
+	)
+	if code != 2 {
+		t.Fatalf("exit=%d, want 2; stderr=%s", code, errBuf.String())
+	}
+	if !strings.Contains(errBuf.String(), "cannot write QR file") {
+		t.Errorf("stderr missing 'cannot write QR file': %s", errBuf.String())
+	}
+	// Stdout already received the dynamic QRIS string before the write failed.
+	if err := qris.Validate(strings.TrimSpace(out.String())); err != nil {
+		t.Errorf("stdout invalid QRIS (should still be printed): %v", err)
+	}
+}
