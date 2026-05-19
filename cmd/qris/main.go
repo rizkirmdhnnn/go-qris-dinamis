@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rizkirmdhn/go-qris-dinamis/qris"
+	"github.com/rizkirmdhnnn/go-qris-dinamis/qris"
 )
 
 var version = "dev"

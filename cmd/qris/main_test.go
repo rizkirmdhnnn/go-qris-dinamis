@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rizkirmdhn/go-qris-dinamis/qris"
+	"github.com/rizkirmdhnnn/go-qris-dinamis/qris"
 )
 
 // validStatic mirrors qris/helpers_test.go but lives here because that helper

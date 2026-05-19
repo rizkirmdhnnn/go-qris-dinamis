@@ -7,13 +7,13 @@ Diadaptasi dari [verssache/qris-dinamis](https://github.com/verssache/qris-dinam
 ## Install
 
 ```bash
-go install github.com/rizkirmdhn/go-qris-dinamis/cmd/qris@latest
+go install github.com/rizkirmdhnnn/go-qris-dinamis/cmd/qris@latest
 ```
 
 Atau build dari source:
 
 ```bash
-git clone https://github.com/rizkirmdhn/go-qris-dinamis
+git clone https://github.com/rizkirmdhnnn/go-qris-dinamis
 cd go-qris-dinamis
 go build -o qris ./cmd/qris
 ```
@@ -58,7 +58,7 @@ qris -f in.txt -a 50000 > out.txt
 ## Library usage
 
 ```go
-import "github.com/rizkirmdhn/go-qris-dinamis/qris"
+import "github.com/rizkirmdhnnn/go-qris-dinamis/qris"
 
 out, err := qris.Convert(input, qris.Options{Amount: 50000, Fee: 1000})
 ```
