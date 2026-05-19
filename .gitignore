@@ -1,5 +1,6 @@
 # Binaries
 /qris
+!/qris/
 /cmd/qris/qris
 
 # Test artifacts
