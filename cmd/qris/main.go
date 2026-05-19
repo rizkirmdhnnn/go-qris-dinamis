@@ -19,13 +19,16 @@ var version = "dev"
 const usage = `Usage: qris [flags]
 
 Convert a static QRIS string into a dynamic one with an injected amount and
-optional fixed fee. Input may come from -i, -f, or stdin (piped).
+optional fixed fee. Input may come from -i, -f, or stdin (piped). When --qr
+is set, a PNG QR code of the dynamic QRIS is also written to the given path
+(stdout still prints the QRIS string).
 
 Flags:
   -i, --input    string  QRIS source string
   -f, --file     string  path to a file containing the QRIS string
   -a, --amount   int     transaction amount in rupiah (required, > 0)
       --fee      int     optional fixed service fee in rupiah (default 0)
+      --qr       string  path to write a PNG QR code of the dynamic QRIS
   -h, --help             show this message
   -v, --version          print version
 `
