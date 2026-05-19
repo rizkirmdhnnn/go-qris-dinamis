@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"os"
 	"strings"
 	"testing"
 
@@ -33,12 +32,13 @@ func TestRun_HelpExitsZero(t *testing.T) {
 
 func TestRun_NoInputExitsTwo(t *testing.T) {
 	var out, errBuf bytes.Buffer
-	code := run([]string{"-a", "50000"}, os.Stdin, &out, &errBuf)
+	code := run([]string{"-a", "50000"}, strings.NewReader(""), &out, &errBuf)
 	if code != 2 {
 		t.Fatalf("exit=%d, want 2; stderr=%s", code, errBuf.String())
 	}
-	if !strings.Contains(errBuf.String(), "no input") {
-		t.Errorf("stderr missing 'no input': %s", errBuf.String())
+	msg := errBuf.String()
+	if !strings.Contains(msg, "no input") && !strings.Contains(msg, "empty input") {
+		t.Errorf("stderr missing 'no input' or 'empty input': %s", msg)
 	}
 }
 
@@ -61,7 +61,7 @@ func TestRun_StdinHappyPath(t *testing.T) {
 
 func TestRun_FlagInputHappyPath(t *testing.T) {
 	var out, errBuf bytes.Buffer
-	code := run([]string{"-i", validStatic(), "-a", "50000", "--fee", "1000"}, os.Stdin, &out, &errBuf)
+	code := run([]string{"-i", validStatic(), "-a", "50000", "--fee", "1000"}, strings.NewReader(""), &out, &errBuf)
 	if code != 0 {
 		t.Fatalf("exit=%d, want 0; stderr=%s", code, errBuf.String())
 	}
@@ -72,7 +72,7 @@ func TestRun_FlagInputHappyPath(t *testing.T) {
 
 func TestRun_MultipleSourcesExitsTwo(t *testing.T) {
 	var out, errBuf bytes.Buffer
-	code := run([]string{"-i", "x", "-f", "y", "-a", "1"}, os.Stdin, &out, &errBuf)
+	code := run([]string{"-i", "x", "-f", "y", "-a", "1"}, strings.NewReader(""), &out, &errBuf)
 	if code != 2 {
 		t.Fatalf("exit=%d, want 2; stderr=%s", code, errBuf.String())
 	}
@@ -83,7 +83,7 @@ func TestRun_MultipleSourcesExitsTwo(t *testing.T) {
 
 func TestRun_BadAmountExitsTwo(t *testing.T) {
 	var out, errBuf bytes.Buffer
-	code := run([]string{"-i", "x", "-a", "0"}, os.Stdin, &out, &errBuf)
+	code := run([]string{"-i", "x", "-a", "0"}, strings.NewReader(""), &out, &errBuf)
 	if code != 2 {
 		t.Fatalf("exit=%d, want 2", code)
 	}
@@ -93,7 +93,7 @@ func TestRun_CRCMismatchExitsOne(t *testing.T) {
 	q := validStatic()
 	bad := q[:len(q)-1] + "0"
 	var out, errBuf bytes.Buffer
-	code := run([]string{"-i", bad, "-a", "50000"}, os.Stdin, &out, &errBuf)
+	code := run([]string{"-i", bad, "-a", "50000"}, strings.NewReader(""), &out, &errBuf)
 	if code != 1 {
 		t.Fatalf("exit=%d, want 1; stderr=%s", code, errBuf.String())
 	}

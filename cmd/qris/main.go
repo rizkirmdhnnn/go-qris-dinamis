@@ -2,6 +2,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"flag"
 	"fmt"
@@ -113,10 +114,16 @@ func resolveInput(input, file string, stdin io.Reader) (string, error) {
 	if file != "" {
 		sources++
 	}
-	stdinPiped := isPiped(stdin)
-	if stdinPiped {
+
+	// Peek stdin to determine whether it carries actual data.  Using a
+	// bufio.Reader lets us look ahead one byte without consuming it, so the
+	// subsequent ReadAll still sees the full content.
+	br := bufio.NewReader(stdin)
+	stdinHasData := isPiped(br)
+	if stdinHasData {
 		sources++
 	}
+
 	if sources == 0 {
 		return "", errors.New("no input (use -i, -f, or pipe to stdin)")
 	}
@@ -134,7 +141,7 @@ func resolveInput(input, file string, stdin io.Reader) (string, error) {
 		}
 		return string(b), nil
 	default:
-		b, err := io.ReadAll(stdin)
+		b, err := io.ReadAll(br)
 		if err != nil {
 			return "", fmt.Errorf("cannot read stdin: %w", err)
 		}
@@ -142,14 +149,13 @@ func resolveInput(input, file string, stdin io.Reader) (string, error) {
 	}
 }
 
-func isPiped(r io.Reader) bool {
-	f, ok := r.(*os.File)
-	if !ok {
-		return true // any non-file reader (e.g., test reader) is treated as piped
-	}
-	info, err := f.Stat()
+func isPiped(r *bufio.Reader) bool {
+	// Peek one byte: if the reader yields EOF immediately it has no data and
+	// should not be counted as an input source.
+	_, err := r.Peek(1)
 	if err != nil {
+		// EOF or any error → treat as empty / not a source.
 		return false
 	}
-	return info.Mode()&os.ModeCharDevice == 0
+	return true
 }
