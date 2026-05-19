@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"os"
 	"strings"
 	"testing"
 
@@ -107,5 +108,35 @@ func TestRun_CRCMismatchExitsOne(t *testing.T) {
 	code := run([]string{"-i", bad, "-a", "50000"}, strings.NewReader(""), &out, &errBuf)
 	if code != 1 {
 		t.Fatalf("exit=%d, want 1; stderr=%s", code, errBuf.String())
+	}
+}
+
+func TestRun_WithQRFlag(t *testing.T) {
+	dir := t.TempDir()
+	qrPath := dir + "/q.png"
+
+	var out, errBuf bytes.Buffer
+	code := run(
+		[]string{"-i", validStatic(), "-a", "50000", "--qr", qrPath},
+		strings.NewReader(""),
+		&out, &errBuf,
+	)
+	if code != 0 {
+		t.Fatalf("exit=%d, want 0; stderr=%s", code, errBuf.String())
+	}
+
+	// Stdout still carries the dynamic QRIS string.
+	if err := qris.Validate(strings.TrimSpace(out.String())); err != nil {
+		t.Fatalf("stdout invalid QRIS: %v", err)
+	}
+
+	// File at qrPath exists and starts with PNG signature.
+	data, err := os.ReadFile(qrPath)
+	if err != nil {
+		t.Fatalf("reading QR file: %v", err)
+	}
+	pngSig := []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}
+	if !bytes.HasPrefix(data, pngSig) {
+		t.Errorf("QR file does not start with PNG signature; first bytes = % x", data[:8])
 	}
 }

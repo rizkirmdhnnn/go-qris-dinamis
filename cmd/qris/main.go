@@ -45,6 +45,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		file    string
 		amount  int
 		fee     int
+		qrPath  string
 		showVer bool
 	)
 
@@ -57,6 +58,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	fs.IntVar(&amount, "a", 0, "")
 	fs.IntVar(&amount, "amount", 0, "")
 	fs.IntVar(&fee, "fee", 0, "")
+	fs.StringVar(&qrPath, "qr", "", "")
 	fs.BoolVar(&showVer, "v", false, "")
 	fs.BoolVar(&showVer, "version", false, "")
 	help := fs.Bool("h", false, "")
@@ -108,6 +110,19 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		}
 	}
 	fmt.Fprintln(stdout, out)
+
+	if qrPath != "" {
+		png, err := qris.RenderPNG(out, 512)
+		if err != nil {
+			fmt.Fprintf(stderr, "qris: cannot render QR: %v\n", err)
+			return 1
+		}
+		if err := os.WriteFile(qrPath, png, 0o644); err != nil {
+			fmt.Fprintf(stderr, "qris: cannot write QR file: %v\n", err)
+			return 2
+		}
+	}
+
 	return 0
 }
 
