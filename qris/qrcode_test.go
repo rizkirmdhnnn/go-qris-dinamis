@@ -29,3 +29,10 @@ func min(a, b int) int {
 	}
 	return b
 }
+
+func TestRenderPNG_EmptyInput(t *testing.T) {
+	_, err := RenderPNG("", 256)
+	if err == nil {
+		t.Fatal("RenderPNG(\"\", 256) returned nil error, want error")
+	}
+}
