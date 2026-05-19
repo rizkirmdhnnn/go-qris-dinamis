@@ -115,12 +115,12 @@ func resolveInput(input, file string, stdin io.Reader) (string, error) {
 		sources++
 	}
 
-	// Peek stdin to determine whether it carries actual data.  Using a
-	// bufio.Reader lets us look ahead one byte without consuming it, so the
-	// subsequent ReadAll still sees the full content.
+	// Wrap stdin in a bufio.Reader so we can peek without consuming data.
+	// isPiped uses *os.File + Stat() for real files (no blocking on TTY),
+	// and Peek for non-file readers (e.g., test strings.NewReader).
 	br := bufio.NewReader(stdin)
-	stdinHasData := isPiped(br)
-	if stdinHasData {
+	stdinPiped := isPiped(stdin, br)
+	if stdinPiped {
 		sources++
 	}
 
@@ -149,13 +149,24 @@ func resolveInput(input, file string, stdin io.Reader) (string, error) {
 	}
 }
 
-func isPiped(r *bufio.Reader) bool {
-	// Peek one byte: if the reader yields EOF immediately it has no data and
-	// should not be counted as an input source.
-	_, err := r.Peek(1)
-	if err != nil {
-		// EOF or any error → treat as empty / not a source.
-		return false
+// isPiped reports whether stdin carries actual data and should be counted as
+// an input source.
+//
+// For *os.File (real stdin): use Stat() to check whether it is a character
+// device (interactive TTY) or not (pipe/redirect).  This never blocks.
+//
+// For any other io.Reader (e.g. a test strings.NewReader): fall back to
+// Peek(1) on the buffered wrapper.  These readers are never interactive TTYs,
+// so Peek cannot block waiting for user input.
+func isPiped(r io.Reader, br *bufio.Reader) bool {
+	if f, ok := r.(*os.File); ok {
+		info, err := f.Stat()
+		if err != nil {
+			return false
+		}
+		return info.Mode()&os.ModeCharDevice == 0
 	}
-	return true
+	// Non-file reader: peek to see if there is any data.
+	_, err := br.Peek(1)
+	return err == nil
 }
